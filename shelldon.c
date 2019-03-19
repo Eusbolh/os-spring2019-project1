@@ -11,10 +11,13 @@ KUSIS ID: PARTNER NAME: Cüneyt Emre Yavuz
 #include <errno.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <string.h>
 
 
 #define MAX_LINE       80              /* 80 chars per line, per command, should be enough. */
+
+#define ARRAYSIZE(x) (sizeof(x) / sizeof((x)[0]))  // Given array x, returns the number of elements in the array
 
 int parseCommand(char inputBuffer[], char *args[],int *background);
 
@@ -44,6 +47,29 @@ int main(void)
         (2) the child process will invoke execv()
         (3) if command included &, parent will invoke wait()
        */
+
+      /*
+      char* command = args[0];
+      int argumentCounter = 1;
+      printf("Command: %s\n", command);
+      while(args[argumentCounter] != NULL) {
+        printf("Argument %d: %s\n", argumentCounter, args[argumentCounter]);
+        argumentCounter++;
+      }
+      */
+
+      pid_t childPID;
+      if((childPID = fork()) == -1) {
+        perror("Fork Error!\n");
+      }
+      else if (childPID == 0) {
+        char command[MAX_LINE+5] = "";
+        strcat(command, args[0]);
+        execv(command, args);
+      }
+      else {
+        wait(NULL);
+      }
     }
   }
   return 0;
