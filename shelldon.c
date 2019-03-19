@@ -110,7 +110,9 @@ int parseCommand(char inputBuffer[], char *args[],int *background)
 
   /* read what the user enters on the command line */
   do {
-    printf("shelldon>");
+    printf("\033[1;32m");
+    printf("shelldon> ");
+    printf("\033[0m");
     fflush(stdout);
     length = read(STDIN_FILENO,inputBuffer,MAX_LINE); 
   }
