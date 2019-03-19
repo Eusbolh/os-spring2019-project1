@@ -63,12 +63,28 @@ int main(void)
         perror("Fork Error!\n");
       }
       else if (childPID == 0) {
-        char command[MAX_LINE+5] = "";
-        strcat(command, args[0]);
-        execv(command, args);
+        //start of the execv command
+        char* arr[4] = {"/bin/bash", "-c"};
+        //creating the command from the arguments
+        char command[MAX_LINE];
+        strcpy(command, args[0]);
+        int argCounter = 1;
+        while(args[argCounter] != NULL){
+          char* temp = command;
+          sprintf(command, "%s %s", temp, args[argCounter]);
+          argCounter++;
+        }
+        //Add the command and the Null to array
+        arr[2] = command;
+        arr[3] = NULL;
+        //Runs the command
+        execv("/bin/bash", arr);
       }
       else {
-        wait(NULL);
+        //If not in background waits execution else doesnt wait and continues
+        if(!background){
+          wait(NULL);
+        }
       }
     }
   }
