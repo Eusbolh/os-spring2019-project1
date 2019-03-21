@@ -22,6 +22,8 @@ KUSIS ID: PARTNER NAME: Cüneyt Emre Yavuz
 
 int parseCommand(char inputBuffer[], char *args[],int *background);
 
+void concatArray(char* dest, char** arr, int beginIndex);
+
 int main(void)
 {
   char inputBuffer[MAX_LINE]; 	       /* buffer to hold the command entered */
@@ -63,18 +65,17 @@ int main(void)
 
       //creating the command from the arguments
       char command[MAX_LINE];
-      strcpy(command, args[0]);
-      int argCounter = 1;
-      while(args[argCounter] != NULL){
-        char* temp = command;
-        sprintf(command, "%s %s", temp, args[argCounter]);
-        argCounter++;
-      }
+      concatArray(command, args, 0);
       
       strcpy(history[history_index], command);
-      //history[history_index] = command;
       history_index++;
       
+      if(strncmp("cd", command, strlen("cd")) == 0){
+        char dir[MAX_LINE];
+        concatArray(dir, args, 1);
+        chdir(dir);
+        continue;
+      }
 
       //list for the execv command
       char* comm[4] = {"/bin/bash", "-c", command, NULL};
@@ -110,6 +111,23 @@ int main(void)
   }
   return 0;
 }
+
+/**
+ * The concatArray function bellow takes a destionation string and a string array and 
+ * concatenates the elements starting from the beginIndex.
+ */
+void concatArray(char* dest, char** arr, int beginIndex){
+        char answer[MAX_LINE];
+        strcpy(answer, arr[beginIndex]);
+        int counter = beginIndex + 1;
+        while(arr[counter] != NULL){
+          char* temp = answer;
+          sprintf(answer, "%s %s", temp, arr[counter]);
+          counter++;
+        }
+        strcpy(dest, answer);
+}
+
 
 /** 
  * The parseCommand function below will not return any value, but it will just: read
