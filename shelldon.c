@@ -16,6 +16,7 @@ KUSIS ID: PARTNER NAME: Cüneyt Emre Yavuz
 
 
 #define MAX_LINE       80              /* 80 chars per line, per command, should be enough. */
+#define MAX_HISTORY    1000
 
 #define ARRAYSIZE(x) (sizeof(x) / sizeof((x)[0]))  // Given array x, returns the number of elements in the array
 
@@ -29,6 +30,8 @@ int main(void)
   pid_t child;            		         /* process id of the child process */
   int status;           		           /* result from execv system call*/
   int shouldrun = 1;
+  char history[MAX_HISTORY][MAX_LINE];
+  int history_index = 0;
 	
   int i, upper;
 		
@@ -58,27 +61,44 @@ int main(void)
       }
       */
 
+      //creating the command from the arguments
+      char command[MAX_LINE];
+      strcpy(command, args[0]);
+      int argCounter = 1;
+      while(args[argCounter] != NULL){
+        char* temp = command;
+        sprintf(command, "%s %s", temp, args[argCounter]);
+        argCounter++;
+      }
+      
+      strcpy(history[history_index], command);
+      //history[history_index] = command;
+      history_index++;
+      
+
+      //list for the execv command
+      char* comm[4] = {"/bin/bash", "-c", command, NULL};
+
       pid_t childPID;
       if((childPID = fork()) == -1) {
         perror("Fork Error!\n");
       }
-      else if (childPID == 0) {
-        //start of the execv command
-        char* arr[4] = {"/bin/bash", "-c"};
-        //creating the command from the arguments
-        char command[MAX_LINE];
-        strcpy(command, args[0]);
-        int argCounter = 1;
-        while(args[argCounter] != NULL){
-          char* temp = command;
-          sprintf(command, "%s %s", temp, args[argCounter]);
-          argCounter++;
+      else if (childPID == 0) {  
+        
+        if(strcmp("history", command) == 0){
+          for(int i = 0; i < history_index; i++)
+          {
+            printf("%s\n", history[i]);
+          }
+          
+          exit(1);
+          
+        }else
+        {
+        //Runs the command if not history
+        execv("/bin/bash", comm);
         }
-        //Add the command and the Null to array
-        arr[2] = command;
-        arr[3] = NULL;
-        //Runs the command
-        execv("/bin/bash", arr);
+        
       }
       else {
         //If not in background waits execution else doesnt wait and continues
