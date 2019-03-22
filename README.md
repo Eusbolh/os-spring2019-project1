@@ -1,0 +1,1 @@
+To compile, run command ```make``` in terminal then run from the out file using ```./out/shelldon```
