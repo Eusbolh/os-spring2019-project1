@@ -48,7 +48,7 @@ void codesearch_recursive(char* dir_name, char* keyword){
     d = opendir(dir_name);
     if (d) {
         while((dir = readdir(d)) != NULL){
-            if(dir->d_type == DT_DIR && strncmp(dir->d_name, ".", 1) != 0){
+            if(dir->d_type == 4 /* Directory */ && strncmp(dir->d_name, ".", 1) != 0){
                 codesearch_recursive(dir->d_name, keyword);
             }else{     
                 if(strcmp(dir->d_name, TEMP_FILE_NAME) != 0){
