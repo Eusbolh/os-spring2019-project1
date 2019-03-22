@@ -1,0 +1,1 @@
+void crontab(char* command);

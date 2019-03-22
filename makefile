@@ -9,5 +9,5 @@ all: prepare shelldon
 prepare:
 	mkdir -p out
 
-shelldon: $(SRC_DIR)/shelldon.c $(SRC_DIR)/commands/codesearch.c 
-	$(CC) -o $(OBJ_DIR)/shelldon $(SRC_DIR)/shelldon.c $(SRC_DIR)/commands/codesearch.c $(CFLAGS)
+shelldon: $(SRC_DIR)/shelldon.c $(SRC_DIR)/commands/codesearch.c $(SRC_DIR)/commands/birdakika.c
+	$(CC) -o $(OBJ_DIR)/shelldon $(SRC_DIR)/shelldon.c $(SRC_DIR)/commands/codesearch.c $(SRC_DIR)/commands/birdakika.c $(CFLAGS)

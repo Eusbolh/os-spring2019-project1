@@ -33,7 +33,7 @@ void codesearch_files_only(char* keyword){
     if (d) {
         while((dir = readdir(d)) != NULL){                
             if(strcmp(dir->d_name, TEMP_FILE_NAME) != 0){
-                char path[MAX_PATH_LENGTH];
+                char path[MAX_LINE];
                 sprintf(path, "./%s", dir->d_name);
                 codesearch_one_file(path, keyword); 
             }  
@@ -52,7 +52,7 @@ void codesearch_recursive(char* dir_name, char* keyword){
                 codesearch_recursive(dir->d_name, keyword);
             }else{     
                 if(strcmp(dir->d_name, TEMP_FILE_NAME) != 0){
-                    char path[MAX_PATH_LENGTH];
+                    char path[MAX_LINE];
                     sprintf(path, "%s/%s", dir_name, dir->d_name);
                     codesearch_one_file(path, keyword); 
                 }               

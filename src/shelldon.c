@@ -6,6 +6,7 @@ KUSIS ID: PARTNER NAME: Cüneyt Emre Yavuz
 
  */
 
+#include "birdakika.h"
 #include "codesearch.h"
 #include "consts.h"
 #include <errno.h>
@@ -46,22 +47,6 @@ int main(void)
       shouldrun = 0;                    /* Exiting from shelldon*/
 
     if (shouldrun) {
-      /*
-        After reading user input, the steps are 
-        (1) Fork a child process using fork()
-        (2) the child process will invoke execv()
-        (3) if command included &, parent will invoke wait()
-       */
-
-      /*
-      char* command = args[0];
-      int argumentCounter = 1;
-      printf("Command: %s\n", command);
-      while(args[argumentCounter] != NULL) {
-        printf("Argument %d: %s\n", argumentCounter, args[argumentCounter]);
-        argumentCounter++;
-      }
-      */
 
       //creating the command from the arguments
       char command[MAX_LINE];
@@ -71,7 +56,7 @@ int main(void)
       history_index++;      
 
       if(strncmp("cd", command, strlen("cd")) == 0){
-        char dir[MAX_PATH_LENGTH];
+        char dir[MAX_LINE];
         concatArray(dir, args, 1);
         chdir(dir);
         continue;
@@ -101,12 +86,13 @@ int main(void)
           }else{
             codesearch(args[1], 0, "");
           }
-        }
-        
-        else
+        }else if (strncmp("birdakika", command, 9) == 0)
         {
-        //Runs the command if not history
-        execv("/bin/bash", comm);
+          crontab(command);
+        } else
+        {
+          //Runs the command if not history
+          execv("/bin/bash", comm);
         }
 
         return 0;
@@ -117,6 +103,7 @@ int main(void)
         //If not in background waits execution else doesnt wait and continues
         if(!background){
           wait(NULL);
+
           if (strncmp("codesearch", command, 10) == 0)
           {
             FILE *fptr;
