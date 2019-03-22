@@ -6,16 +6,17 @@ KUSIS ID: PARTNER NAME: Cüneyt Emre Yavuz
 
  */
 
-#include <stdio.h>
-#include <unistd.h>
+#include "codesearch.h"
+#include "consts.h"
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <string.h>
+#include <unistd.h>
 
 
-#define MAX_LINE       80              /* 80 chars per line, per command, should be enough. */
 #define MAX_HISTORY    1000
 
 #define ARRAYSIZE(x) (sizeof(x) / sizeof((x)[0]))  // Given array x, returns the number of elements in the array
@@ -35,7 +36,6 @@ int main(void)
   char history[MAX_HISTORY][MAX_LINE];
   int history_index = 0;
 	
-  int i, upper;
 		
   while (shouldrun){            		   /* Program terminates normally inside setup */
     background = 0;
@@ -66,47 +66,77 @@ int main(void)
       //creating the command from the arguments
       char command[MAX_LINE];
       concatArray(command, args, 0);
-      
+
       strcpy(history[history_index], command);
-      history_index++;
-      
+      history_index++;      
+
       if(strncmp("cd", command, strlen("cd")) == 0){
-        char dir[MAX_LINE];
+        char dir[MAX_PATH_LENGTH];
         concatArray(dir, args, 1);
         chdir(dir);
         continue;
       }
 
+
       //list for the execv command
       char* comm[4] = {"/bin/bash", "-c", command, NULL};
-
       pid_t childPID;
       if((childPID = fork()) == -1) {
         perror("Fork Error!\n");
       }
-      else if (childPID == 0) {  
-        
+      else if (childPID == 0) { 
         if(strcmp("history", command) == 0){
           for(int i = 0; i < history_index; i++)
           {
             printf("%s\n", history[i]);
           }
           
-          exit(1);
-          
-        }else
+          exit(1);          
+        }else if (args[1] != NULL && strncmp("codesearch", command, 10) == 0)
+        {
+          if (strcmp(args[1], "-r") == 0) {
+            codesearch(args[2], -1, "");
+          }else if (args[2] != NULL && strcmp(args[2], "-f") == 0) {
+            codesearch(args[1], 1, args[3]);
+          }else{
+            codesearch(args[1], 0, "");
+          }
+        }
+        
+        else
         {
         //Runs the command if not history
         execv("/bin/bash", comm);
         }
+
+        return 0;
         
       }
       else {
+
         //If not in background waits execution else doesnt wait and continues
         if(!background){
           wait(NULL);
+          if (strncmp("codesearch", command, 10) == 0)
+          {
+            FILE *fptr;
+            if((fptr = fopen(TEMP_FILE_NAME, "r")) == NULL){
+                perror("Error opening answer file\n"); 
+                return -1;
+            }
+            int c;
+            while((c = getc(fptr)) != EOF){
+                printf("%c", c);
+            }
+            fclose(fptr);
+            remove(TEMP_FILE_NAME);
+          }
         }
       }
+
+      
+
+      
     }
   }
   return 0;
