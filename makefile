@@ -15,8 +15,8 @@ all: prepare shelldon kernel_module
 prepare:
 	mkdir -p out
 
-shelldon: $(SRC_DIR)/shelldon.c $(SRC_DIR)/commands/codesearch.c $(SRC_DIR)/commands/birdakika.c
-	$(CC) -o $(OBJ_DIR)/shelldon $(SRC_DIR)/shelldon.c $(SRC_DIR)/commands/codesearch.c $(SRC_DIR)/commands/birdakika.c $(CFLAGS)
+shelldon: $(SRC_DIR)/shelldon.c $(SRC_DIR)/commands/codesearch.c $(SRC_DIR)/commands/birdakika.c $(SRC_DIR)/commands/pomodoro.c
+	$(CC) -o $(OBJ_DIR)/shelldon $(SRC_DIR)/shelldon.c $(SRC_DIR)/commands/codesearch.c $(SRC_DIR)/commands/birdakika.c $(SRC_DIR)/commands/pomodoro.c $(CFLAGS)
 
 kernel_module:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD)/src/kernel_module modules

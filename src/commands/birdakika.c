@@ -19,7 +19,7 @@
 
 void crontab(char* command){
     FILE *fptr;
-    if((fptr = fopen(CRON_FILE_NAME, "w")) == NULL){
+    if((fptr = fopen(CRON_FILE_NAME, "a")) == NULL){
         perror("Error opening file\n"); 
         return;
     }
@@ -46,16 +46,7 @@ void crontab(char* command){
     
     fclose(fptr);    
 
-    pid_t childPID;
-    if((childPID = fork()) == -1) {
-        perror("Fork Error!\n");
-    }
-    else if (childPID == 0) { 
-        execv("/bin/bash", comm);
-    }else{
-        wait(NULL);
-        remove(CRON_FILE_NAME);
-    }
+    execv("/bin/bash", comm);
 
 
 }

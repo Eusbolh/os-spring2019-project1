@@ -9,6 +9,7 @@ KUSIS ID: PARTNER NAME: Cüneyt Emre Yavuz
 #include "birdakika.h"
 #include "codesearch.h"
 #include "consts.h"
+#include "pomodoro.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -124,6 +125,9 @@ int main(void)
         }else if (strncmp("birdakika", command, 9) == 0)
         {
           crontab(command);
+        } else if (strcmp("pomodoro", args[0]) == 0)
+        {
+          pomodoro(atoi(args[1]));
         } else if (args[1] != NULL && strncmp("oldestchild", command, 11) == 0) {
           // The case which 'oldestchild' functions is called first time
           if (oldestchildMode == 0) {
