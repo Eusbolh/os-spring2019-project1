@@ -39,7 +39,6 @@ int main(void)
 
   int oldestchildPID = -1;             /* pid of the process called with 'oldestchild' command */
   int oldestchildMode = -1;            /* function mode for 'oldestchild' command (case 0: first time, case 1: repetition, case 2: new pid) */
-  char kernel_module[] = "llamas";
 		
   while (shouldrun){            		   /* Program terminates normally inside setup */
     background = 0;
@@ -112,38 +111,36 @@ int main(void)
           crontab(command);
         } else if (args[1] != NULL && strncmp("oldestchild", command, 11) == 0) {
           // The case which 'oldestchild' functions is called first time
-          int argPID = atoi(args[1]);
           if (oldestchildMode == 0) {
-            printf("'oldestchild' command is called first time. Kernel module will be loaded with PID: %d.\n", argPID);
+            printf("'oldestchild' command is called first time. Kernel module will be loaded with PID: %s.\n", args[1]);
             
             // load the kernel module with argPID
             char load_comm[MAX_LINE];
-            sprintf(load_comm, "%s%s%s%s", "sudo insmod ", kernel_module, ".ko processID=", args[1]);
+            sprintf(load_comm, "%s%s%s%s", "sudo insmod out/", KERNEL_MODULE, ".ko processID=", args[1]);
             // printf("%s\n", load_comm);
             char* kern_load_comm[4] = {"/bin/bash", "-c", load_comm, NULL};
             execv("/bin/bash", kern_load_comm);
           }
           // Successive call case - PID is same with the last call
           else if (oldestchildMode == 1) {
-            printf("Kernel module is already loaded with PID: %d.\n", argPID);
+            printf("Kernel module is already loaded with PID: %s.\n", args[1]);
           }
           // Successive call case - PID is different than last call
           else if (oldestchildMode == 2) {
-            printf("Kernel module is loaded with another pid. It is being removed and kernel module will be loaded again with PID: %d.\n", argPID);
+            printf("Kernel module is loaded with another pid. It is being removed and kernel module will be loaded again with PID: %s.\n", args[1]);
             
             // unload the kernel module
             char unload_comm[MAX_LINE];
-            sprintf(unload_comm, "%s %s", "sudo rmmod ", kernel_module);
-            // printf("%s\n", unload_comm);
-            char* kern_load_comm[4] = {"/bin/bash", "-c", unload_comm, NULL};
-            execv("/bin/bash", kern_load_comm);
+            sprintf(unload_comm, "%s %s", "sudo rmmod ", KERNEL_MODULE);
 
             // load the kernel module with argPID
             char load_comm[MAX_LINE];
-            sprintf(load_comm, "%s%s%s%s", "sudo insmod ", kernel_module, ".ko processID=", args[1]);
+            sprintf(load_comm, "%s%s%s%s", "sudo insmod out/", KERNEL_MODULE, ".ko processID=", args[1]);
             // printf("%s\n", load_comm);
-            char* kern_unload_comm[4] = {"/bin/bash", "-c", load_comm, NULL};
-            execv("/bin/bash", kern_unload_comm);
+            char master_comm[MAX_LINE];
+            sprintf(master_comm, "%s && %s", unload_comm, load_comm);
+            char* kern_master_comm[4] = {"/bin/bash", "-c", master_comm, NULL};
+            execv("/bin/bash", kern_master_comm);
           }
           else {
             // code shouldnt be reached here
