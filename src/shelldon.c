@@ -45,8 +45,10 @@ int main(void)
 		
     shouldrun = parseCommand(inputBuffer,args,&background);       /* get next command */
 		
+    /*
     if (strncmp(inputBuffer, "exit", 4) == 0)
-      shouldrun = 0;                    /* Exiting from shelldon*/
+      shouldrun = 0;                    // Exiting from shelldon
+    */
 
     if (shouldrun) {
 
@@ -56,6 +58,9 @@ int main(void)
 
       strcpy(history[history_index], command);
       history_index++;      
+
+      if (strncmp(inputBuffer, "exit", 4) == 0)
+        shouldrun = 0;
 
       if(strncmp("cd", command, strlen("cd")) == 0){
         char dir[MAX_LINE];
@@ -89,8 +94,18 @@ int main(void)
       if((childPID = fork()) == -1) {
         perror("Fork Error!\n");
       }
-      else if (childPID == 0) { 
-        if(strcmp("history", command) == 0){
+      else if (childPID == 0) {
+        if (strncmp(inputBuffer, "exit", 4) == 0) {
+          if (oldestchildPID != -1) {
+            // unload the kernel module
+            char unload_comm[MAX_LINE];
+            sprintf(unload_comm, "%s %s", "sudo rmmod ", KERNEL_MODULE);
+            char* kern_unload_comm[4] = {"/bin/bash", "-c", unload_comm, NULL};
+            execv("/bin/bash", kern_unload_comm);
+          }
+          break;
+        }
+        else if(strcmp("history", command) == 0){
           for(int i = 0; i < history_index; i++)
           {
             printf("%s\n", history[i]);
