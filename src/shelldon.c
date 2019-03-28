@@ -36,7 +36,10 @@ int main(void)
   int shouldrun = 1;
   char history[MAX_HISTORY][MAX_LINE];
   int history_index = 0;
-	
+
+  int oldestchildPID = -1;             /* pid of the process called with 'oldestchild' command */
+  int oldestchildMode = -1;            /* function mode for 'oldestchild' command (case 0: first time, case 1: repetition, case 2: new pid) */
+  char kernel_module[] = "llamas";
 		
   while (shouldrun){            		   /* Program terminates normally inside setup */
     background = 0;
@@ -62,6 +65,24 @@ int main(void)
         continue;
       }
 
+      // oldestchild Command
+      if (args[1] != NULL && strncmp("oldestchild", command, 11) == 0) {
+        // The case which 'oldestchild' functions is called first time
+        int argPID = atoi(args[1]);
+        if (oldestchildPID == -1) {
+          oldestchildPID = argPID;
+          oldestchildMode = 0;
+        }
+        // Successive call case - PID is same with the last call
+        else if (oldestchildPID == argPID) {
+          oldestchildMode = 1;
+        }
+        // Successive call case - PID is different than last call
+        else {
+          oldestchildPID = argPID;
+          oldestchildMode = 2;
+        }
+      }
 
       //list for the execv command
       char* comm[4] = {"/bin/bash", "-c", command, NULL};
@@ -89,6 +110,44 @@ int main(void)
         }else if (strncmp("birdakika", command, 9) == 0)
         {
           crontab(command);
+        } else if (args[1] != NULL && strncmp("oldestchild", command, 11) == 0) {
+          // The case which 'oldestchild' functions is called first time
+          int argPID = atoi(args[1]);
+          if (oldestchildMode == 0) {
+            printf("'oldestchild' command is called first time. Kernel module will be loaded with PID: %d.\n", argPID);
+            
+            // load the kernel module with argPID
+            char load_comm[MAX_LINE];
+            sprintf(load_comm, "%s%s%s%s", "sudo insmod ", kernel_module, ".ko processID=", args[1]);
+            // printf("%s\n", load_comm);
+            char* kern_load_comm[4] = {"/bin/bash", "-c", load_comm, NULL};
+            execv("/bin/bash", kern_load_comm);
+          }
+          // Successive call case - PID is same with the last call
+          else if (oldestchildMode == 1) {
+            printf("Kernel module is already loaded with PID: %d.\n", argPID);
+          }
+          // Successive call case - PID is different than last call
+          else if (oldestchildMode == 2) {
+            printf("Kernel module is loaded with another pid. It is being removed and kernel module will be loaded again with PID: %d.\n", argPID);
+            
+            // unload the kernel module
+            char unload_comm[MAX_LINE];
+            sprintf(unload_comm, "%s %s", "sudo rmmod ", kernel_module);
+            // printf("%s\n", unload_comm);
+            char* kern_load_comm[4] = {"/bin/bash", "-c", unload_comm, NULL};
+            execv("/bin/bash", kern_load_comm);
+
+            // load the kernel module with argPID
+            char load_comm[MAX_LINE];
+            sprintf(load_comm, "%s%s%s%s", "sudo insmod ", kernel_module, ".ko processID=", args[1]);
+            // printf("%s\n", load_comm);
+            char* kern_unload_comm[4] = {"/bin/bash", "-c", load_comm, NULL};
+            execv("/bin/bash", kern_unload_comm);
+          }
+          else {
+            // code shouldnt be reached here
+          }
         } else
         {
           //Runs the command if not history
