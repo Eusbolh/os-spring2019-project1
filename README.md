@@ -10,6 +10,13 @@ To compile, run command ```make``` in terminal then run from the out file using 
 
 #### Part 3
 
+**birdakika**
+
+To run the command ```birdakika```, mpg321 package should be installed. To install the package, run command:
+```apt install mpg321```.
+
+**Custom Command**
+
 As the custom command, we implemented the ```pomodoro``` comment. To execute ```pomodoro```, run command:
 ```pomodoro [NUMBER]```.
 Number is how many pomodoro cycles you would like to generate.
