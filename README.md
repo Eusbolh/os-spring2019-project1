@@ -1,6 +1,7 @@
 ## Comp 304 - Project 1: Shelldon
 
 **Team Member 1:** Alper Toygar - 60105
+
 **Team Member 2:** Cüneyt Emre Yavuz - 54347
 
 #### How do i compile and run the project?
